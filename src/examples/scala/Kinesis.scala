@@ -1,28 +1,13 @@
-# scalazon
+import io.github.cloudify.scala.aws.kinesis.Client
+import io.github.cloudify.scala.aws.kinesis.Client.ImplicitExecution._
+import io.github.cloudify.scala.aws.kinesis.KinesisDsl._
+import io.github.cloudify.scala.aws.util.UserHomeAwsCredentialsProvider
+import java.nio.ByteBuffer
+import scala.concurrent.duration._
+import scala.concurrent.{Future, Await}
+import scala.concurrent.ExecutionContext.Implicits.global
 
-Idiomatic, opinionated Scala library for AWS.
-
-## Status
-
-This is very much a work in progress.
-
-Services covered:
-
-### Kinesis
-
-* Stream creation
-* Stream deletion
-* Stream list
-* Put records
-* Fetch records
-
-## Usage
-
-### Kinesis
-
-Example:
-
-```scala
+object Kinesis extends App {
 
   // Declare an implicit Kinesis `Client` that will be used to make API calls.
   implicit val kinesisClient = Client.fromCredentials(UserHomeAwsCredentialsProvider())
@@ -81,4 +66,4 @@ Example:
   Await.result(deleteStream, 30.seconds)
   println("stream deleted")
 
-```
+}
