@@ -1,5 +1,7 @@
 addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.5.2")
 
+addSbtPlugin("com.github.gseitz" % "sbt-release" % "0.8")
+
 resolvers += Resolver.url(
   "bintray-sbt-plugin-releases",
     url("http://dl.bintray.com/content/sbt/sbt-plugin-releases"))(

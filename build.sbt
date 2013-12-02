@@ -13,3 +13,8 @@ libraryDependencies ++= Seq(
     "javax.mail" % "mail" % "1.4.3",
     "com.fasterxml.jackson.core" % "jackson-databind" % "2.1.1"
 )
+
+// bintray publishing
+
+seq(bintrayPublishSettings:_*)
+
