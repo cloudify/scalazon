@@ -11,38 +11,41 @@ import java.lang.Boolean
  */
 trait StreamsDsl {
 
-  /**
-   * Sugar for dealing with the streams collection
-   */
-  lazy val streams = new {
-
+  object Kinesis {
     /**
-     * Provides a StreamReq that lists the available Streams
+     * Sugar for dealing with the streams collection
      */
-    def list = Requests.ListStreams()
+    object streams {
+
+      /**
+       * Provides a StreamReq that lists the available Streams
+       */
+      def list = Requests.ListStreams()
+
+      /**
+       * Creates a new stream and returns the `Stream` definition associated
+       * to it.
+       *
+       * If the call to the Kinesis API fails with a ResourceInUseException
+       * due to the fact that the stream already exists, this method will
+       * fail silently and just return the `Stream` object.
+       */
+      def create(name: String) = Requests.CreateStream(stream(name))
+
+    }
 
     /**
-     * Creates a new stream and returns the `Stream` definition associated
-     * to it.
+     * Declare a stream by name, exposing the methods available to steams.
      *
-     * If the call to the Kinesis API fails with a ResourceInUseException
-     * due to the fact that the stream already exists, this method will
-     * fail silently and just return the `Stream` object.
+     * Example:
+     * {{{
+     *    stream("myStream").describe
+     * }}}
+     *
      */
-    def create(name: String) = Requests.CreateStream(stream(name))
+    def stream(name: String) = Definitions.Stream(name)
 
   }
-
-  /**
-   * Declare a stream by name, exposing the methods available to steams.
-   *
-   * Example:
-   * {{{
-   *    stream("myStream").describe
-   * }}}
-   *
-   */
-  def stream(name: String) = Definitions.Stream(name)
 
   /**
    * Implicitly converts a String to a Stream.
@@ -53,7 +56,7 @@ trait StreamsDsl {
    * }}}
    *
    */
-  implicit def stringToStreamDefinition(name: String) = stream(name)
+  implicit def stringToStreamDefinition(name: String) = Kinesis.stream(name)
 
 }
 

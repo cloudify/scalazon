@@ -7,14 +7,14 @@ import scala.concurrent.duration._
 import scala.concurrent.{Future, Await}
 import scala.concurrent.ExecutionContext.Implicits.global
 
-object Kinesis extends App {
+object KinesisExample extends App {
 
   // Declare an implicit Kinesis `Client` that will be used to make API calls.
   implicit val kinesisClient = Client.fromCredentials(UserHomeAwsCredentialsProvider())
 
   // First we create the stream.
   val createStream = for {
-    s <- streams.create("myStream")
+    s <- Kinesis.streams.create("myStream")
   } yield s
 
   val s = Await.result(createStream, 60.seconds)

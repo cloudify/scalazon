@@ -10,11 +10,20 @@ Services covered:
 
 ### Kinesis
 
-* Stream creation
-* Stream deletion
-* Stream list
+* Create a stream
+* Delete a stream
+* List available streams
+* List shards of a stream
 * Put records
-* Fetch records
+* Get records through a shard iterator
+
+__Note__: for Kinesis you'll need to have the following JARs in your project `lib` directory:
+
+* `KinesisClientLibrary.jar`
+* `aws-java-sdk-1.6.4.jar`
+* `aws-java-sdk-flow-build-tools-1.6.4.jar`
+
+The above libraries are part of the Kinesis SDK and not publicly available yet.
 
 ## Usage
 
@@ -29,7 +38,7 @@ Example:
 
   // First we create the stream.
   val createStream = for {
-    s <- streams.create("myStream")
+    s <- Kinesis.streams.create("myStream")
   } yield s
 
   val s = Await.result(createStream, 60.seconds)
