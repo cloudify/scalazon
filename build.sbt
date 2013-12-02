@@ -4,9 +4,13 @@ net.virtualvoid.sbt.graph.Plugin.graphSettings
 // sbt-release settings
 releaseSettings
 
+organization := "io.github.cloudify"
+
 name := "scalazon"
 
 description := "Opinionated, idiomatic Scala library for Amazon Web Services."
+
+homepage := Some(url("https://github.com/cloudify/scalazon"))
 
 scalaVersion := "2.10.3"
 
