@@ -27,14 +27,44 @@ The above libraries are part of the Kinesis SDK and not publicly available yet.
 
 ## Usage
 
-### Kinesis
+### CredentialsProvider
+
+The `io.github.cloudify.scala.aws.auth.CredentialsProvider` object defines a few helpful instances of `AWSCredentialsProvider`:
+
+* The case class `HomePropertiesFile`: implements a `AWSCredentialsProvider` that reads AWS credentials from a properties file stored in the user's home directory. 
+* `DefaultHomePropertiesFile`: an instance of `HomePropertiesFile` that looks for `.aws.properties` in the user home.
+* `InstanceProfile`: an instance of `InstanceProfileCredentialsProvider`
+* `DefaultClasspathPropertiesFile`: an instance of `ClasspathPropertiesFileCredentialsProvider` that looks for `AwsCredentials.properties` in the class path.
+* `DefaultHyerarchical`: returns the first valid provider of `DefaultHomePropertiesFile`, `InstanceProfile`, `DefaultClasspathPropertiesFile`
+
+Plus an implicit value class that adds an `orElse` method to `AWSCredentialsProvider`, and a `firstOf` method that takes a list of `AWSCredentialsProvider`s and returns the first valid one. 
 
 Example:
 
 ```scala
 
+import io.github.cloudify.scala.aws.auth.CredentialsProvider.DefaultHyerarchical
+
+val kinesisClient = Client.fromCredentials(DefaultHyerarchical)
+
+```
+
+### Kinesis
+
+Example:
+
+```scala
+  import io.github.cloudify.scala.aws.kinesis.Client
+  import io.github.cloudify.scala.aws.kinesis.Client.ImplicitExecution._
+  import io.github.cloudify.scala.aws.kinesis.KinesisDsl._
+  import io.github.cloudify.scala.aws.auth.CredentialsProvider.DefaultHomePropertiesFile
+  import java.nio.ByteBuffer
+  import scala.concurrent.duration._
+  import scala.concurrent.{Future, Await}
+  import scala.concurrent.ExecutionContext.Implicits.global
+
   // Declare an implicit Kinesis `Client` that will be used to make API calls.
-  implicit val kinesisClient = Client.fromCredentials(UserHomeAwsCredentialsProvider())
+  implicit val kinesisClient = Client.fromCredentials(DefaultHomePropertiesFile)
 
   // First we create the stream.
   val createStream = for {

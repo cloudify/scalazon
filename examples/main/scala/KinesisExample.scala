@@ -1,7 +1,7 @@
 import io.github.cloudify.scala.aws.kinesis.Client
 import io.github.cloudify.scala.aws.kinesis.Client.ImplicitExecution._
 import io.github.cloudify.scala.aws.kinesis.KinesisDsl._
-import io.github.cloudify.scala.aws.util.UserHomeAwsCredentialsProvider
+import io.github.cloudify.scala.aws.auth.CredentialsProvider.DefaultHomePropertiesFile
 import java.nio.ByteBuffer
 import scala.concurrent.duration._
 import scala.concurrent.{Future, Await}
@@ -10,7 +10,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 object KinesisExample extends App {
 
   // Declare an implicit Kinesis `Client` that will be used to make API calls.
-  implicit val kinesisClient = Client.fromCredentials(UserHomeAwsCredentialsProvider())
+  implicit val kinesisClient = Client.fromCredentials(DefaultHomePropertiesFile)
 
   // First we create the stream.
   val createStream = for {
