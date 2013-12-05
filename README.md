@@ -25,6 +25,28 @@ __Note__: for Kinesis you'll need to have the following JARs in your project `li
 
 The above libraries are part of the Kinesis SDK and not publicly available yet.
 
+## Installation
+
+The library is currently hosted on Bintray, so you'll need to have the `sbt-bintray` plugin configured in your project. For instance you can add the following to `project/plugins.sbt`:
+
+```scala
+resolvers += Resolver.url(
+  "bintray-sbt-plugin-releases",
+    url("http://dl.bintray.com/content/sbt/sbt-plugin-releases"))(
+        Resolver.ivyStylePatterns)
+
+addSbtPlugin("me.lessis" % "bintray-sbt" % "0.1.1")
+```
+
+Then in your `build.sbt` add:
+
+```scala
+seq(bintrayResolverSettings:_*)
+
+libraryDependencies ++= Seq("io.github.cloudify" %% "scalazon" % "0.3")
+```
+
+
 ## Usage
 
 ### CredentialsProvider
