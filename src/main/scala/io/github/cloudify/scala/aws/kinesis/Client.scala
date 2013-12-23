@@ -43,7 +43,7 @@ trait Client {
 
   def execute(r: Requests.ListStreams)(implicit ec: ExecutionContext): Future[Iterable[String]]
 
-  def execute(r: Requests.PutRecord)(implicit ec: ExecutionContext): Future[Unit]
+  def execute(r: Requests.PutRecord)(implicit ec: ExecutionContext): Future[PutResult]
 
   def execute(r: Requests.ListStreamShards)(implicit ec: ExecutionContext): Future[Iterable[Shard]]
 
@@ -116,7 +116,7 @@ class ClientImpl(val kinesisClient: AmazonKinesis) extends Client {
     run()
   }
 
-  def execute(r: Requests.PutRecord)(implicit ec: ExecutionContext): Future[Unit] = Future {
+  def execute(r: Requests.PutRecord)(implicit ec: ExecutionContext): Future[PutResult] = Future {
     val putRecordRequest = new model.PutRecordRequest()
     putRecordRequest.setStreamName(r.streamDef.name)
     putRecordRequest.setData(r.data)
