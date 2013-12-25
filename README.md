@@ -17,14 +17,6 @@ Services covered:
 * Put records
 * Get records through a shard iterator
 
-__Note__: for Kinesis you'll need to have the following JARs in your project `lib` directory:
-
-* `KinesisClientLibrary.jar`
-* `aws-java-sdk-1.6.4.jar`
-* `aws-java-sdk-flow-build-tools-1.6.4.jar`
-
-The above libraries are part of the Kinesis SDK and not publicly available yet.
-
 ## Installation
 
 The library is currently hosted on Bintray, so you'll need to have the `sbt-bintray` plugin configured in your project. For instance you can add the following to `project/plugins.sbt`:
@@ -43,7 +35,7 @@ Then in your `build.sbt` add:
 ```scala
 seq(bintrayResolverSettings:_*)
 
-libraryDependencies ++= Seq("io.github.cloudify" %% "scalazon" % "0.4")
+libraryDependencies ++= Seq("io.github.cloudify" %% "scalazon" % "0.5")
 ```
 
 

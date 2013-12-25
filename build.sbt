@@ -19,11 +19,9 @@ licenses += ( "MIT" -> url("http://opensource.org/licenses/MIT") )
 unmanagedSourceDirectories in Compile += baseDirectory.value / "examples"
 
 libraryDependencies ++= Seq(
-    "org.apache.httpcomponents" % "httpclient" % "4.2.3",
-    "org.freemarker" % "freemarker" % "2.3.18",
-    "org.springframework" % "spring-context" % "3.0.7.RELEASE",
-    "javax.mail" % "mail" % "1.4.3",
-    "com.fasterxml.jackson.core" % "jackson-databind" % "2.1.1"
+  "com.amazonaws"       % "aws-java-sdk"    % "1.6.10",
+  "org.scalatest"      %% "scalatest"       % "2.0"     % "test",
+  "org.mockito"         % "mockito-all"     % "1.9.0"   % "test"
 )
 
 scalacOptions ++= List(
@@ -43,4 +41,4 @@ resolvers += bintray.Opts.resolver.repo("cloudify", "maven")
 // bintray publishing
 seq(bintrayPublishSettings:_*)
 
-bintray.Keys.packageLabels in bintray.Keys.bintray := Seq("scala", "aws", "amazon", "client")
+bintray.Keys.packageLabels in bintray.Keys.bintray := Seq("scala", "aws", "amazon", "client", "kinesis")

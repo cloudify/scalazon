@@ -20,7 +20,7 @@ trait StreamsDsl {
       /**
        * Provides a StreamReq that lists the available Streams
        */
-      def list = Requests.ListStreams()
+      def list = Requests.ListStreams
 
       /**
        * Creates a new stream and returns the `Stream` definition associated
@@ -92,7 +92,7 @@ trait StreamDsl {
 trait StreamDescriptionDsl {
   def name: String
   def arn: String
-  def isMoreDataAvailable: Boolean
+  def hasMoreShards: Boolean
   def status: String
   def isActive: Boolean
   def isCreating: Boolean
@@ -177,7 +177,7 @@ object Definitions {
     private def description = result.getStreamDescription
     def name: String = description.getStreamName
     def arn: String = description.getStreamARN
-    def isMoreDataAvailable: Boolean = description.isMoreDataAvailable
+    def hasMoreShards: Boolean = description.isHasMoreShards
     def status: String = description.getStreamStatus
     def isActive: Boolean = status.equals("ACTIVE")
     def isCreating: Boolean = status.equals("CREATING")
@@ -197,7 +197,7 @@ object Definitions {
     def nextRecords: Requests.NextRecords = Requests.NextRecords(this)
   }
   
-  case class NextRecords(iteratorDef: ShardIterator, result: model.GetNextRecordsResult) extends NextRecordsDsl {
+  case class NextRecords(iteratorDef: ShardIterator, result: model.GetRecordsResult) extends NextRecordsDsl {
     def records: Iterable[Record] = result.getRecords.asScala.map(Record)
     def nextIterator: ShardIterator = iteratorDef.copy(name = result.getNextShardIterator)
   }
@@ -237,13 +237,15 @@ object Requests {
     def sleeping(sleep: Long) = this.copy(sleep = sleep)
   }
 
-  case class ListStreams()
+  case object ListStreams
 
   case class ListStreamShards(streamDef: Definitions.Stream)
 
-  case class PutRecord(streamDef: Definitions.Stream, data: ByteBuffer, partitionKey: String, minSeqNumber: Option[String] = None) extends PutRecordDsl[PutRecord] {
+  case class PutRecord(streamDef: Definitions.Stream, data: ByteBuffer, partitionKey: String, minSeqNumber: Option[String] = None, seqNumberForOrdering: Option[String] = None, explicitHashKey: Option[String] = None) extends PutRecordDsl[PutRecord] {
     def withExclusiveMinimumSequenceNumber(seqNumber: String) = this.copy(minSeqNumber = Some(seqNumber))
     def withoutExclusiveMinimumSequenceNumber = this.copy(minSeqNumber = None)
+    def withSequenceNumberForOrdering(seqNumber: String) = this.copy(seqNumberForOrdering = Some(seqNumber))
+    def withExplicitHashKey(hashKey: String) = this.copy(explicitHashKey = Some(hashKey))
   }
 
   case class ShardIterator(
