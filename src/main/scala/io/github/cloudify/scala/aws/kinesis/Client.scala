@@ -41,7 +41,7 @@ trait Client {
 
   def execute(r: Requests.WaitStreamActive)(implicit ec: ExecutionContext): Future[StreamDescription]
 
-  def execute(r: Requests.ListStreams)(implicit ec: ExecutionContext): Future[Iterable[String]]
+  def execute(r: Requests.ListStreams.type)(implicit ec: ExecutionContext): Future[Iterable[String]]
 
   def execute(r: Requests.PutRecord)(implicit ec: ExecutionContext): Future[PutResult]
 
@@ -97,7 +97,7 @@ class ClientImpl(val kinesisClient: AmazonKinesis) extends Client {
     Future.retry(r.retries, r.sleep) { execute(describeReq).filter(_.isActive) }
   }
 
-  def execute(r: Requests.ListStreams)(implicit ec: ExecutionContext): Future[Iterable[String]] = Future {
+  def execute(r: Requests.ListStreams.type)(implicit ec: ExecutionContext): Future[Iterable[String]] = Future {
     val listStreamsRequest = new model.ListStreamsRequest()
     listStreamsRequest.setLimit(10)
 
@@ -108,7 +108,7 @@ class ClientImpl(val kinesisClient: AmazonKinesis) extends Client {
       streamNames.lastOption.foreach { name =>
         listStreamsRequest.setExclusiveStartStreamName(name)
       }
-      if(listStreamsResult.isMoreDataAvailable) {
+      if(listStreamsResult.isHasMoreStreams) {
         run(streamNames)
       } else streamNames
     }
@@ -120,8 +120,9 @@ class ClientImpl(val kinesisClient: AmazonKinesis) extends Client {
     val putRecordRequest = new model.PutRecordRequest()
     putRecordRequest.setStreamName(r.streamDef.name)
     putRecordRequest.setData(r.data)
-    r.minSeqNumber.foreach { n => putRecordRequest.setExclusiveMinimumSequenceNumber(n) }
     putRecordRequest.setPartitionKey(r.partitionKey)
+    r.seqNumberForOrdering.foreach { n => putRecordRequest.setSequenceNumberForOrdering(n) }
+    r.explicitHashKey.foreach { k => putRecordRequest.setExplicitHashKey(k) }
     val putRecordResult = kinesisClient.putRecord(putRecordRequest)
     PutResult(putRecordResult)
   }
@@ -160,12 +161,12 @@ class ClientImpl(val kinesisClient: AmazonKinesis) extends Client {
   }
 
   def execute(r: Requests.NextRecords)(implicit ec: ExecutionContext): Future[NextRecords] = Future {
-    val getNextRecordsRequest = new model.GetNextRecordsRequest()
-    getNextRecordsRequest.setShardIterator(r.iteratorDef.name)
-    getNextRecordsRequest.setLimit(r.limit)
+    val getRecordsRequest = new model.GetRecordsRequest()
+    getRecordsRequest.setShardIterator(r.iteratorDef.name)
+    getRecordsRequest.setLimit(r.limit)
 
-    val result = kinesisClient.getNextRecords(getNextRecordsRequest)
-    NextRecords(r.iteratorDef, result)
+    val getRecordsResult = kinesisClient.getRecords(getRecordsRequest)
+    NextRecords(r.iteratorDef, getRecordsResult)
   }
 
 }
@@ -218,7 +219,7 @@ object Client {
     implicit def implicitExecute(r: Requests.DescribeStream)(implicit client: Client, ec: ExecutionContext) =
       client.execute(r)(ec)
 
-    implicit def implicitExecute(r: Requests.ListStreams)(implicit client: Client, ec: ExecutionContext) =
+    implicit def implicitExecute(r: Requests.ListStreams.type)(implicit client: Client, ec: ExecutionContext) =
       client.execute(r)(ec)
 
     implicit def implicitExecute(r: Requests.ListStreamShards)(implicit client: Client, ec: ExecutionContext) =
