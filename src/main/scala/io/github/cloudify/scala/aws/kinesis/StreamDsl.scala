@@ -138,6 +138,7 @@ trait BlockingRequestDsl[A] {
 
 trait ShardIteratorRequestDsl[A] {
   def withType(iteratorType: Types.ShardIteratorType): A
+  def withStartingSequenceNumber(sequenceNumber: String): A
 }
 
 trait NextRecordsRequestDsl[A] {
@@ -250,9 +251,12 @@ object Requests {
 
   case class ShardIterator(
     shardDef: Definitions.Shard,
-    iteratorType: Types.ShardIteratorType = Types.TrimHorizon
+    iteratorType: Types.ShardIteratorType = Types.TrimHorizon,
+    startingSequenceNumber: Option[String] = None
   ) extends ShardIteratorRequestDsl[ShardIterator] {
     def withType(iteratorType: Types.ShardIteratorType) = this.copy(iteratorType = iteratorType)
+    def withStartingSequenceNumber(sequenceNumber: String) =
+      this.copy(startingSequenceNumber = Option(sequenceNumber))
   }
 
   case class NextRecords(iteratorDef: Definitions.ShardIterator, limit: Int = Defaults.IteratorLimit) {
