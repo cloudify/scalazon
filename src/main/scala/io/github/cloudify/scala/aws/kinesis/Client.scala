@@ -155,6 +155,11 @@ class ClientImpl(val kinesisClient: AmazonKinesis) extends Client {
     getShardIteratorRequest.setShardId(r.shardDef.shard.getShardId)
     getShardIteratorRequest.setShardIteratorType(r.iteratorType.value)
 
+    r.startingSequenceNumber match {
+      case Some(s) => getShardIteratorRequest.setStartingSequenceNumber(s)
+      case None => ()
+    }
+
     val getShardIteratorResult = kinesisClient.getShardIterator(getShardIteratorRequest)
 
     ShardIterator(getShardIteratorResult.getShardIterator, r.shardDef)
