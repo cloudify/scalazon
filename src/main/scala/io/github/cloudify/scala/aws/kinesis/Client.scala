@@ -203,6 +203,16 @@ object Client {
     fromClient(kinesisClient)
   }
 
+  def fromCredentials(accessKey: String, secretKey: String, endPoint: String): Client = {
+    val credentials = new AWSCredentials {
+      def getAWSAccessKeyId: String = accessKey
+      def getAWSSecretKey: String = secretKey
+    }
+    val kinesisClient = new AmazonKinesisClient(credentials)
+    val kinesisClientNewEndPoint = kinesisClient.setEndpoint(endPoint)
+    fromClient(kinesisClient)
+  }
+
   /**
    * Implicitly converts the requests into `Future`s.
    * Requires an implicit `Client` and an implicit `ExecutionContext` in scope.
