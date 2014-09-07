@@ -195,12 +195,25 @@ object Client {
    * Creates a client from an access key and a secret key.
    */
   def fromCredentials(accessKey: String, secretKey: String): Client = {
+    val kinesisClient = createCredentials(accessKey, secretKey)
+    fromClient(kinesisClient)
+  }
+
+  /**
+   * Creates a client from an access key, secret key, and endPoint.
+   */
+  def fromCredentials(accessKey: String, secretKey: String, endPoint: String): Client = {
+    val kinesisClient = createCredentials(accessKey, secretKey)
+    kinesisClient.setEndpoint(endPoint)
+    fromClient(kinesisClient)
+  }
+
+  private def createCredentials(accessKey: String, secretKey: String): AmazonKinesisClient = {
     val credentials = new AWSCredentials {
       def getAWSAccessKeyId: String = accessKey
       def getAWSSecretKey: String = secretKey
     }
-    val kinesisClient = new AmazonKinesisClient(credentials)
-    fromClient(kinesisClient)
+    new AmazonKinesisClient(credentials)
   }
 
   /**

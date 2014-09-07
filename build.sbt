@@ -19,7 +19,7 @@ licenses += ( "MIT" -> url("http://opensource.org/licenses/MIT") )
 unmanagedSourceDirectories in Compile += baseDirectory.value / "examples"
 
 libraryDependencies ++= Seq(
-  "com.amazonaws"       % "aws-java-sdk"    % "1.7.13",
+  "com.amazonaws"       % "aws-java-sdk"    % "1.8.9",
   "org.scalatest"      %% "scalatest"       % "2.0"     % "test",
   "org.mockito"         % "mockito-all"     % "1.9.0"   % "test"
 )
