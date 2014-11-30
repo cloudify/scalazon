@@ -35,7 +35,7 @@ Then in your `build.sbt` add:
 ```scala
 seq(bintrayResolverSettings:_*)
 
-libraryDependencies ++= Seq("io.github.cloudify" %% "scalazon" % "0.8")
+libraryDependencies ++= Seq("io.github.cloudify" %% "scalazon" % "0.10")
 ```
 
 
@@ -45,13 +45,13 @@ libraryDependencies ++= Seq("io.github.cloudify" %% "scalazon" % "0.8")
 
 The `io.github.cloudify.scala.aws.auth.CredentialsProvider` object defines a few helpful instances of `AWSCredentialsProvider`:
 
-* The case class `HomePropertiesFile`: implements a `AWSCredentialsProvider` that reads AWS credentials from a properties file stored in the user's home directory. 
+* The case class `HomePropertiesFile`: implements a `AWSCredentialsProvider` that reads AWS credentials from a properties file stored in the user's home directory.
 * `DefaultHomePropertiesFile`: an instance of `HomePropertiesFile` that looks for `.aws.properties` in the user home.
 * `InstanceProfile`: an instance of `InstanceProfileCredentialsProvider`
 * `DefaultClasspathPropertiesFile`: an instance of `ClasspathPropertiesFileCredentialsProvider` that looks for `AwsCredentials.properties` in the class path.
 * `DefaultHyerarchical`: returns the first valid provider of `DefaultHomePropertiesFile`, `InstanceProfile`, `DefaultClasspathPropertiesFile`
 
-Plus an implicit value class that adds an `orElse` method to `AWSCredentialsProvider`, and a `firstOf` method that takes a list of `AWSCredentialsProvider`s and returns the first valid one. 
+Plus an implicit value class that adds an `orElse` method to `AWSCredentialsProvider`, and a `firstOf` method that takes a list of `AWSCredentialsProvider`s and returns the first valid one.
 
 Example:
 
