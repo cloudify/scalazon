@@ -45,6 +45,8 @@ trait Client {
 
   def execute(r: Requests.PutRecord)(implicit ec: ExecutionContext): Future[PutResult]
 
+  def execute(r: Requests.PutRecords)(implicit ec: ExecutionContext): Future[PutsResult]
+
   def execute(r: Requests.ListStreamShards)(implicit ec: ExecutionContext): Future[Iterable[Shard]]
 
   def execute(r: Requests.ShardIterator)(implicit ec: ExecutionContext): Future[ShardIterator]
@@ -125,6 +127,24 @@ class ClientImpl(val kinesisClient: AmazonKinesis) extends Client {
     r.explicitHashKey.foreach { k => putRecordRequest.setExplicitHashKey(k) }
     val putRecordResult = kinesisClient.putRecord(putRecordRequest)
     PutResult(putRecordResult)
+  }
+
+  def execute(r: Requests.PutRecords)(implicit ec: ExecutionContext): Future[PutsResult] = Future {
+    val putRecordsRequest = new model.PutRecordsRequest()
+    putRecordsRequest.setStreamName(r.streamDef.name)
+
+    val putRecordsRequestEntryList = r.data.map {record =>
+      val putRecordsRequestEntry = new model.PutRecordsRequestEntry
+      putRecordsRequestEntry.setPartitionKey(r.partitionKey)
+      r.explicitHashKey.foreach { k => putRecordsRequestEntry.setExplicitHashKey(k) }
+      putRecordsRequestEntry.setData(record)
+      putRecordsRequestEntry
+    }
+
+    putRecordsRequest.setRecords(putRecordsRequestEntryList)
+
+    val putRecordsResult = kinesisClient.putRecords(putRecordsRequest)
+    PutsResult(putRecordsResult)
   }
 
   def execute(r: Requests.ListStreamShards)(implicit ec: ExecutionContext): Future[Iterable[Shard]] = Future {
@@ -252,6 +272,8 @@ object Client {
     implicit def implicitExecute(r: Requests.PutRecord)(implicit client: Client, ec: ExecutionContext) =
       client.execute(r)(ec)
 
+    implicit def implicitExecute(r: Requests.PutRecords)(implicit client: Client, ec: ExecutionContext) =
+      client.execute(r)(ec)
   }
 
 }
