@@ -87,6 +87,11 @@ trait StreamDsl {
    */
   def put(data: ByteBuffer, partitionKey: String): Requests.PutRecord
 
+  /**
+   * Puts more than one record in the stream
+   */
+  def multiPut(data: List[(ByteBuffer, String)]): Requests.PutRecords
+
 }
 
 trait StreamDescriptionDsl {
@@ -150,9 +155,19 @@ trait PutRecordDsl[A] {
   def withoutExclusiveMinimumSequenceNumber: A
 }
 
+trait PutRecordsDsl[A] {
+  def withExclusiveMinimumSequenceNumber(seqNumber: String): A
+  def withoutExclusiveMinimumSequenceNumber: A
+}
+
 trait PutResultDsl {
   def shardId: String
   def sequenceNumber: String
+}
+
+trait PutsResultDsl {
+  def shardIds: List[String]
+  def sequenceNumber: List[String]
 }
 
 object Definitions {
@@ -171,6 +186,8 @@ object Definitions {
     def waitActive: Requests.WaitStreamActive = Requests.WaitStreamActive(this)
 
     def put(data: ByteBuffer, partitionKey: String): Requests.PutRecord = Requests.PutRecord(this, data, partitionKey)
+
+    def multiPut(records: List[(ByteBuffer, String)]): Requests.PutRecords = Requests.PutRecords(this, records.map(r => Requests.SingleRecord(r._1, r._2)))
 
   }
 
@@ -214,6 +231,11 @@ object Definitions {
     def sequenceNumber: String = result.getSequenceNumber
   }
 
+  case class PutsResult(result: model.PutRecordsResult) extends PutsResultDsl {
+    def shardIds: List[String] = result.getRecords.asScala.toList.map(_.getShardId)
+    def sequenceNumber: List[String] = result.getRecords.asScala.toList.map(_.getSequenceNumber)
+  }
+
 }
 
 object Requests {
@@ -247,6 +269,16 @@ object Requests {
     def withoutExclusiveMinimumSequenceNumber = this.copy(minSeqNumber = None)
     def withSequenceNumberForOrdering(seqNumber: String) = this.copy(seqNumberForOrdering = Some(seqNumber))
     def withExplicitHashKey(hashKey: String) = this.copy(explicitHashKey = Some(hashKey))
+  }
+
+  case class SingleRecord(data: ByteBuffer, partitionKey: String, explicitHashKey: Option[String] = None) {
+    def withExplicitHashKey(hashKey: String) = this.copy(explicitHashKey = Some(hashKey))
+  }
+
+  case class PutRecords(streamDef: Definitions.Stream, records: List[SingleRecord], minSeqNumber: Option[String] = None, seqNumberForOrdering: Option[String] = None) extends PutRecordsDsl[PutRecords] {
+    def withExclusiveMinimumSequenceNumber(seqNumber: String) = this.copy(minSeqNumber = Some(seqNumber))
+    def withoutExclusiveMinimumSequenceNumber = this.copy(minSeqNumber = None)
+    def withSequenceNumberForOrdering(seqNumber: String) = this.copy(seqNumberForOrdering = Some(seqNumber))
   }
 
   case class ShardIterator(
