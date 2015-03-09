@@ -35,7 +35,7 @@ Then in your `build.sbt` add:
 ```scala
 seq(bintrayResolverSettings:_*)
 
-libraryDependencies ++= Seq("io.github.cloudify" %% "scalazon" % "0.10")
+libraryDependencies ++= Seq("io.github.cloudify" %% "scalazon" % "0.11")
 ```
 
 
