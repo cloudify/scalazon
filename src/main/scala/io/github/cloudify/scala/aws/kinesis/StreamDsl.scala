@@ -90,7 +90,7 @@ trait StreamDsl {
   /**
    * Puts more than one record in the stream
    */
-  def multiPut(data: List[ByteBuffer], partitionKey: String): Requests.PutRecords
+  def multiPut(data: List[(ByteBuffer, String)]): Requests.PutRecords
 
 }
 
@@ -187,7 +187,7 @@ object Definitions {
 
     def put(data: ByteBuffer, partitionKey: String): Requests.PutRecord = Requests.PutRecord(this, data, partitionKey)
 
-    def multiPut(data: List[ByteBuffer], partitionKey: String): Requests.PutRecords = Requests.PutRecords(this, data, partitionKey)
+    def multiPut(records: List[(ByteBuffer, String)]): Requests.PutRecords = Requests.PutRecords(this, records.map(r => Requests.SingleRecord(r._1, r._2)))
 
   }
 
@@ -271,11 +271,14 @@ object Requests {
     def withExplicitHashKey(hashKey: String) = this.copy(explicitHashKey = Some(hashKey))
   }
 
-  case class PutRecords(streamDef: Definitions.Stream, data: List[ByteBuffer], partitionKey: String,  minSeqNumber: Option[String] = None, seqNumberForOrdering: Option[String] = None, explicitHashKey: Option[String] = None) extends PutRecordsDsl[PutRecords] {
+  case class SingleRecord(data: ByteBuffer, partitionKey: String, explicitHashKey: Option[String] = None) {
+    def withExplicitHashKey(hashKey: String) = this.copy(explicitHashKey = Some(hashKey))
+  }
+
+  case class PutRecords(streamDef: Definitions.Stream, records: List[SingleRecord], minSeqNumber: Option[String] = None, seqNumberForOrdering: Option[String] = None) extends PutRecordsDsl[PutRecords] {
     def withExclusiveMinimumSequenceNumber(seqNumber: String) = this.copy(minSeqNumber = Some(seqNumber))
     def withoutExclusiveMinimumSequenceNumber = this.copy(minSeqNumber = None)
     def withSequenceNumberForOrdering(seqNumber: String) = this.copy(seqNumberForOrdering = Some(seqNumber))
-    def withExplicitHashKey(hashKey: String) = this.copy(explicitHashKey = Some(hashKey))
   }
 
   case class ShardIterator(

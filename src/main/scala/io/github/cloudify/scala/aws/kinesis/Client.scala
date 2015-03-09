@@ -133,11 +133,11 @@ class ClientImpl(val kinesisClient: AmazonKinesis) extends Client {
     val putRecordsRequest = new model.PutRecordsRequest()
     putRecordsRequest.setStreamName(r.streamDef.name)
 
-    val putRecordsRequestEntryList = r.data.map {record =>
+    val putRecordsRequestEntryList = r.records.map {record =>
       val putRecordsRequestEntry = new model.PutRecordsRequestEntry
-      putRecordsRequestEntry.setPartitionKey(r.partitionKey)
-      r.explicitHashKey.foreach { k => putRecordsRequestEntry.setExplicitHashKey(k) }
-      putRecordsRequestEntry.setData(record)
+      putRecordsRequestEntry.setPartitionKey(record.partitionKey)
+      record.explicitHashKey.foreach { k => putRecordsRequestEntry.setExplicitHashKey(k) }
+      putRecordsRequestEntry.setData(record.data)
       putRecordsRequestEntry
     }
 
